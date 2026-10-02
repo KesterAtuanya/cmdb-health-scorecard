@@ -126,7 +126,7 @@ The ServiceNow client is tested against a fake HTTP session, covering pagination
 
 ## Author
 
-Built by Kester Atuanya, Senior ServiceNow Developer (CIS-ITSM, CIS-SAM, CIS-CAD, CSA).
+Built by Kester Atuanya, Senior ServiceNow Developer (CIS-ITSM, CIS-SAM, CAD, CSA).
 
 ## License
 
