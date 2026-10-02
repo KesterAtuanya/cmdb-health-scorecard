@@ -55,7 +55,7 @@ Terminal output from the demo:
 Requires Python 3.10 or newer.
 
 ```bash
-git clone https://github.com/YOUR-GITHUB-USERNAME/cmdb-health-scorecard.git
+git clone https://github.com/KesterAtuanya/cmdb-health-scorecard.git
 cd cmdb-health-scorecard
 pip install -r requirements.txt
 
