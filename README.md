@@ -1,6 +1,6 @@
 # CMDB Health Scorecard
 
-![tests](https://github.com/YOUR-GITHUB-USERNAME/cmdb-health-scorecard/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/KesterAtuanya/cmdb-health-scorecard/actions/workflows/tests.yml/badge.svg)
 
 A command-line tool that scans a ServiceNow CMDB, scores its health from 0 to 100, and tells you exactly which CIs to fix and how.
 
