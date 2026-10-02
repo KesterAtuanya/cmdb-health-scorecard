@@ -1,0 +1,12 @@
+{
+  "stale_after_days": 60,
+  "required_fields": {
+    "cmdb_ci_computer": ["serial_number", "asset_tag", "location", "ip_address"]
+  },
+  "naming_patterns": {
+    "cmdb_ci_win_server": "^[a-z]{3}-(win|w)-[a-z0-9]{2,12}-\\d{2,3}$"
+  },
+  "weights": {
+    "duplicates": 30
+  }
+}

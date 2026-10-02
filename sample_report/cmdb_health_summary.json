@@ -1,0 +1,108 @@
+{
+  "tool": "cmdb-health-scorecard",
+  "version": "1.0.0",
+  "source": "Demo data: Northwind Logistics (fictional)",
+  "collected_at": "2026-10-01T09:00:00",
+  "score": 88.7,
+  "grade": "B",
+  "total_cis": 432,
+  "active_cis": 416,
+  "affected_cis": 129,
+  "severity_counts": {
+    "high": 84,
+    "medium": 47,
+    "low": 12
+  },
+  "checks": [
+    {
+      "key": "completeness",
+      "title": "Required fields",
+      "weight": 25,
+      "applicable": 416,
+      "affected": 55,
+      "pass_rate": 0.8678
+    },
+    {
+      "key": "duplicates",
+      "title": "Duplicates",
+      "weight": 20,
+      "applicable": 416,
+      "affected": 17,
+      "pass_rate": 0.9591
+    },
+    {
+      "key": "staleness",
+      "title": "Stale records",
+      "weight": 20,
+      "applicable": 350,
+      "affected": 35,
+      "pass_rate": 0.9
+    },
+    {
+      "key": "relationships",
+      "title": "Relationships",
+      "weight": 15,
+      "applicable": 60,
+      "affected": 19,
+      "pass_rate": 0.6833
+    },
+    {
+      "key": "status",
+      "title": "Status conflicts",
+      "weight": 10,
+      "applicable": 432,
+      "affected": 8,
+      "pass_rate": 0.9815
+    },
+    {
+      "key": "naming",
+      "title": "Naming standard",
+      "weight": 10,
+      "applicable": 356,
+      "affected": 9,
+      "pass_rate": 0.9747
+    }
+  ],
+  "classes": [
+    {
+      "class": "cmdb_ci_appl",
+      "label": "Applications",
+      "total": 36,
+      "affected": 17,
+      "issues": 18,
+      "healthy_pct": 52.8
+    },
+    {
+      "class": "cmdb_ci_win_server",
+      "label": "Windows servers",
+      "total": 112,
+      "affected": 41,
+      "issues": 50,
+      "healthy_pct": 63.4
+    },
+    {
+      "class": "cmdb_ci_computer",
+      "label": "Computers",
+      "total": 163,
+      "affected": 52,
+      "issues": 56,
+      "healthy_pct": 68.1
+    },
+    {
+      "class": "cmdb_ci_linux_server",
+      "label": "Linux servers",
+      "total": 81,
+      "affected": 15,
+      "issues": 15,
+      "healthy_pct": 81.5
+    },
+    {
+      "class": "cmdb_ci_db_instance",
+      "label": "Database instances",
+      "total": 24,
+      "affected": 4,
+      "issues": 4,
+      "healthy_pct": 83.3
+    }
+  ]
+}

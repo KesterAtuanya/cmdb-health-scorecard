@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CMDB Health Scorecard · Demo data: Northwind Logistics (fictional)</title>
+<style>
+:root{--bg:#f4f6f9;--panel:#fff;--ink:#141a26;--soft:#5a6475;--line:#dfe3ea;--track:#e4e8ef;--accent:#2457d6;
+--good:#1a8f5a;--warn:#c27a00;--bad:#c9314b;--grade-A:#1a8f5a;--grade-B:#3b8e2f;--grade-C:#c27a00;--grade-D:#d35a1d;--grade-F:#c9314b;
+--mono:ui-monospace,"Cascadia Code",Consolas,Menlo,monospace;--sans:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0f131b;--panel:#171d28;--ink:#e8ecf3;--soft:#9aa5b8;--line:#2a3242;--track:#252d3b;
+--accent:#6d97ff;--good:#3fc285;--warn:#f0a93a;--bad:#ff6b82;--grade-A:#3fc285;--grade-B:#7bc96b;--grade-C:#f0a93a;--grade-D:#ff8a4c;--grade-F:#ff6b82;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding:28px 16px 60px}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font-size:26px;margin:0;letter-spacing:-.01em} h2{font-size:17px;margin:0 0 12px} h3{font-size:15px;margin:0}
+.eyebrow{font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.meta,.code{color:var(--soft);font-size:13px} .code{display:block;font-family:var(--mono);font-size:11.5px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.hero{display:grid;grid-template-columns:180px 1fr;gap:28px;align-items:center}
+.ring{width:170px;height:170px} .ring-score{font:700 40px var(--sans);fill:var(--ink)} .ring-sub{font:600 11px var(--sans);letter-spacing:.12em;fill:var(--soft)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums} .stat span{color:var(--soft);font-size:13px}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.check header{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.check p{margin:8px 0 0;font-size:14px}
+.pct{font:700 15px var(--mono)} .pct.good{color:var(--good)} .pct.warn{color:var(--warn)} .pct.bad{color:var(--bad)}
+.bar{height:6px;background:var(--track);border-radius:9px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px} .bar i.good{background:var(--good)} .bar i.warn{background:var(--warn)} .bar i.bad{background:var(--bad)}
+.fixes{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.fixes li{display:grid;grid-template-columns:70px 1fr;gap:12px;align-items:start;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.fixes li:last-child{border:0;padding:0} .fixes p{margin:4px 0 0;font-size:14px;color:var(--soft)}
+.count{margin-left:8px;font:600 12px var(--mono);color:var(--soft)}
+.sev{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:5px;text-align:center}
+.sev.high{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.sev.medium{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.sev.low{background:var(--track);color:var(--soft)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font:600 11px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--soft);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.num{text-align:right;font-variant-numeric:tabular-nums}
+.mini{height:6px;background:var(--track);border-radius:9px;min-width:80px} .mini i{display:block;height:100%;background:var(--accent);border-radius:9px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.filters input,.filters select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.filters input{flex:1 1 220px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px} .two>*{min-width:0}
+footer{color:var(--soft);font-size:12.5px;text-align:center}
+@media (max-width:760px){.hero,.two{grid-template-columns:1fr} .ring{margin:0 auto;display:block}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">CMDB Health Scorecard</span>
+    <h1>Demo data: Northwind Logistics (fictional)</h1>
+    <p class="meta">Data collected Oct 01, 2026 09:00 · report generated Oct 01, 2026 09:13 PM</p>
+  </header>
+
+  <section class="panel hero">
+    <svg class="ring" viewBox="0 0 140 140" role="img" aria-label="Health score 88.7 out of 100, grade B">
+  <circle cx="70" cy="70" r="54" fill="none" stroke="var(--track)" stroke-width="12"/>
+  <circle cx="70" cy="70" r="54" fill="none" stroke="var(--grade-B)" stroke-width="12" stroke-linecap="round"
+    stroke-dasharray="301.0 339.3" transform="rotate(-90 70 70)"/>
+  <text x="70" y="68" text-anchor="middle" class="ring-score">89</text>
+  <text x="70" y="90" text-anchor="middle" class="ring-sub">GRADE B</text>
+</svg>
+    <div>
+      <h2>129 of 416 active CIs need attention</h2>
+      <p class="meta" style="margin:0">The score is a weighted average of the checks below. Retired CIs are only checked for status conflicts.</p>
+      <div class="stats">
+        <div class="stat"><b>432</b><span>CIs scanned</span></div>
+        <div class="stat"><b style="color:var(--bad)">84</b><span>high severity findings</span></div>
+        <div class="stat"><b style="color:var(--warn)">47</b><span>medium severity</span></div>
+        <div class="stat"><b>12</b><span>low severity</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="checks">
+      <article class="check">
+        <header><h3>Required fields</h3><span class="pct warn">86.8%</span></header>
+        <div class="bar"><i class="warn" style="width:86.8%"></i></div>
+        <p>Ownership, support group and identifying fields that your standards require.</p>
+        <p class="meta"><b>55</b> of 416 CIs affected · weight 25</p>
+      </article>
+      <article class="check">
+        <header><h3>Duplicates</h3><span class="pct good">95.9%</span></header>
+        <div class="bar"><i class="good" style="width:95.9%"></i></div>
+        <p>CIs that share a serial number, or share a host name within the same class.</p>
+        <p class="meta"><b>17</b> of 416 CIs affected · weight 20</p>
+      </article>
+      <article class="check">
+        <header><h3>Stale records</h3><span class="pct warn">90.0%</span></header>
+        <div class="bar"><i class="warn" style="width:90.0%"></i></div>
+        <p>Operational discovered CIs not seen by discovery in the last 90 days.</p>
+        <p class="meta"><b>35</b> of 350 CIs affected · weight 20</p>
+      </article>
+      <article class="check">
+        <header><h3>Relationships</h3><span class="pct bad">68.3%</span></header>
+        <div class="bar"><i class="bad" style="width:68.3%"></i></div>
+        <p>Applications and databases with no relationships, links to missing CIs, and live CIs that depend on retired ones.</p>
+        <p class="meta"><b>19</b> of 60 CIs affected · weight 15</p>
+      </article>
+      <article class="check">
+        <header><h3>Status conflicts</h3><span class="pct good">98.1%</span></header>
+        <div class="bar"><i class="good" style="width:98.1%"></i></div>
+        <p>Install status and operational status that contradict each other.</p>
+        <p class="meta"><b>8</b> of 432 CIs affected · weight 10</p>
+      </article>
+      <article class="check">
+        <header><h3>Naming standard</h3><span class="pct good">97.5%</span></header>
+        <div class="bar"><i class="good" style="width:97.5%"></i></div>
+        <p>Names that don&#x27;t follow your naming convention for the class.</p>
+        <p class="meta"><b>9</b> of 356 CIs affected · weight 10</p>
+      </article></section>
+
+  <section class="two">
+    <div class="panel"><h2>Fix these first</h2><ul class="fixes"><li><span class="sev high">high</span><div><b>Not seen by discovery recently</b>
+        <span class="count">30 CIs</span><p>Check whether the device was decommissioned. Retire it, or fix the discovery credentials or schedule.</p></div></li><li><span class="sev high">high</span><div><b>Missing Support group</b>
+        <span class="count">18 CIs</span><p>Fill in the missing fields, or set a default through a data policy or the discovery pattern.</p></div></li><li><span class="sev high">high</span><div><b>Duplicate serial numbers</b>
+        <span class="count">11 CIs</span><p>Merge into phx-win-web-24 with CMDB Duplicate Remediation, then review the identification rule for cmdb_ci_win_server.</p></div></li><li><span class="sev high">high</span><div><b>Missing Owned by</b>
+        <span class="count">11 CIs</span><p>Fill in the missing fields, or set a default through a data policy or the discovery pattern.</p></div></li><li><span class="sev high">high</span><div><b>Live CIs depending on retired CIs</b>
+        <span class="count">9 CIs</span><p>Point the relationship at the replacement CI, or remove it if the dependency is gone.</p></div></li><li><span class="sev high">high</span><div><b>Has no relationships (orphan)</b>
+        <span class="count">7 CIs</span><p>Map what it runs on and what uses it, for example with Service Mapping or a Depends on::Used by relationship.</p></div></li></ul></div>
+    <div class="panel"><h2>Health by class</h2><div class="tablewrap"><table>
+      <thead><tr><th>Class</th><th class="num">CIs</th><th class="num">With issues</th><th></th><th class="num">Healthy</th></tr></thead>
+      <tbody><tr><td>Applications<span class="code">cmdb_ci_appl</span></td><td class="num">36</td>
+        <td class="num">17</td><td><div class="mini"><i style="width:52.8%"></i></div></td>
+        <td class="num">52.8%</td></tr><tr><td>Windows servers<span class="code">cmdb_ci_win_server</span></td><td class="num">112</td>
+        <td class="num">41</td><td><div class="mini"><i style="width:63.4%"></i></div></td>
+        <td class="num">63.4%</td></tr><tr><td>Computers<span class="code">cmdb_ci_computer</span></td><td class="num">163</td>
+        <td class="num">52</td><td><div class="mini"><i style="width:68.1%"></i></div></td>
+        <td class="num">68.1%</td></tr><tr><td>Linux servers<span class="code">cmdb_ci_linux_server</span></td><td class="num">81</td>
+        <td class="num">15</td><td><div class="mini"><i style="width:81.5%"></i></div></td>
+        <td class="num">81.5%</td></tr><tr><td>Database instances<span class="code">cmdb_ci_db_instance</span></td><td class="num">24</td>
+        <td class="num">4</td><td><div class="mini"><i style="width:83.3%"></i></div></td>
+        <td class="num">83.3%</td></tr></tbody></table></div></div>
+  </section>
+
+  <section class="panel">
+    <h2>All findings (143)</h2>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Search by CI name or problem" aria-label="Search findings">
+      <select id="sev" aria-label="Severity"><option value="">All severities</option><option>high</option><option>medium</option><option>low</option></select>
+      <select id="chk" aria-label="Check"><option value="">All checks</option><option>Required fields</option><option>Duplicates</option><option>Stale records</option><option>Relationships</option><option>Status conflicts</option><option>Naming standard</option></select>
+    </div>
+    <div class="tablewrap"><table id="findings">
+      <thead><tr><th>Severity</th><th>Check</th><th>CI</th><th>Problem</th></tr></thead>
+      <tbody><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">CHI-WIN-RDS-06<span class="code">Windows servers</span></td>
+        <td>Same serial as chi-win-rds-06 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">dal-win-dc-18<span class="code">Windows servers</span></td>
+        <td>Same serial as DAL-WIN-DC-18 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">dt-10189<span class="code">Computers</span></td>
+        <td>Same serial as dt-10189 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">dt-10777<span class="code">Computers</span></td>
+        <td>Same serial as dt-10777 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">HOU-WIN-RDS-26<span class="code">Windows servers</span></td>
+        <td>Same serial as hou-win-rds-26 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">lt-10007<span class="code">Computers</span></td>
+        <td>Same serial as lt-10007 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">lt-10028<span class="code">Computers</span></td>
+        <td>Same serial as lt-10028 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">lt-10707<span class="code">Computers</span></td>
+        <td>Same serial as lt-10707 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">lt-10952<span class="code">Computers</span></td>
+        <td>Same serial as lt-10952 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">PHX-WIN-SCCM-23<span class="code">Windows servers</span></td>
+        <td>Same serial as phx-win-sccm-23 (2 records share it)</td></tr><tr data-sev="high" data-check="Duplicates"><td><span class="sev high">high</span></td>
+        <td>Duplicates</td><td class="ci">PHX-WIN-WEB-24<span class="code">Windows servers</span></td>
+        <td>Same serial as phx-win-web-24 (2 records share it)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Asset Disposal Log<span class="code">Applications</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Badge Access Sync<span class="code">Applications</span></td>
+        <td>Depends on retired CI hou-lnx-jenkins-34</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Carrier EDI Hub<span class="code">Applications</span></td>
+        <td>Depends on retired CI chi-lnx-api-01</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Contract Repository<span class="code">Applications</span></td>
+        <td>Depends on retired CI phx-win-dc-14</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Customer Self-Service<span class="code">Applications</span></td>
+        <td>Depends on retired CI hou-lnx-web-05</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Driver Training LMS<span class="code">Applications</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">HR Onboarding<span class="code">Applications</span></td>
+        <td>Depends on retired CI chi-lnx-jenkins-19</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Maintenance Planner<span class="code">Applications</span></td>
+        <td>Depends on retired CI atl-win-print-17</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">mssql-hou-21<span class="code">Database instances</span></td>
+        <td>Depends on retired CI chi-lnx-jenkins-19</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">mysql-atl-12<span class="code">Database instances</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">mysql-hou-09<span class="code">Database instances</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">oracle-chi-11<span class="code">Database instances</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Payroll Connector<span class="code">Applications</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Proof of Delivery<span class="code">Applications</span></td>
+        <td>Has no relationships (orphan)</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Quote Builder<span class="code">Applications</span></td>
+        <td>Depends on retired CI hou-lnx-redis-26</td></tr><tr data-sev="high" data-check="Relationships"><td><span class="sev high">high</span></td>
+        <td>Relationships</td><td class="ci">Returns Desk<span class="code">Applications</span></td>
+        <td>Depends on retired CI hou-lnx-jenkins-34</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">atl-lnx-api-30<span class="code">Linux servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">atl-lnx-db-29<span class="code">Linux servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">atl-win-dc-29<span class="code">Windows servers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">atl-win-rds-14<span class="code">Windows servers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">atl-win-sql-03<span class="code">Windows servers</span></td>
+        <td>Missing Owned by, Serial number</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">chi-win-file-08<span class="code">Windows servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">chi-win-file-21<span class="code">Windows servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dal-lnx-etl-17<span class="code">Linux servers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-10217<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-10399<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-10420<span class="code">Computers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-10518<span class="code">Computers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-10721<span class="code">Computers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-10728<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-11008<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">dt-11057<span class="code">Computers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">hou-lnx-redis-33<span class="code">Linux servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">hou-win-app-24<span class="code">Windows servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">hou-win-sftp-13<span class="code">Windows servers</span></td>
+        <td>Missing Owned by, Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">hou-win-sql-36<span class="code">Windows servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">hou-win-web-40<span class="code">Windows servers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10126<span class="code">Computers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10273<span class="code">Computers</span></td>
+        <td>Missing Support group, Asset tag</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10371<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10406<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10455<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10644<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10651<span class="code">Computers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">lt-10679<span class="code">Computers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">phx-win-print-25<span class="code">Windows servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">phx-win-rds-18<span class="code">Windows servers</span></td>
+        <td>Missing Support group</td></tr><tr data-sev="high" data-check="Required fields"><td><span class="sev high">high</span></td>
+        <td>Required fields</td><td class="ci">phx-win-sftp-09<span class="code">Windows servers</span></td>
+        <td>Missing Owned by</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">atl-win-web-24<span class="code">Windows servers</span></td>
+        <td>Last discovered 311 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">CHI-WIN-RDS-06<span class="code">Windows servers</span></td>
+        <td>Last discovered 188 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dal-win-dc-18<span class="code">Windows servers</span></td>
+        <td>Last discovered 316 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">DAL-WIN-DC-18<span class="code">Windows servers</span></td>
+        <td>Last discovered 223 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dal-win-iis-20<span class="code">Windows servers</span></td>
+        <td>Last discovered 344 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dal-win-print-05<span class="code">Windows servers</span></td>
+        <td>Last discovered 307 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dal-win-sftp-39<span class="code">Windows servers</span></td>
+        <td>Last discovered 343 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dt-10147<span class="code">Computers</span></td>
+        <td>Last discovered 243 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dt-10224<span class="code">Computers</span></td>
+        <td>Last discovered 357 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dt-10294<span class="code">Computers</span></td>
+        <td>Last discovered 391 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dt-10322<span class="code">Computers</span></td>
+        <td>Last discovered 344 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">dt-10728<span class="code">Computers</span></td>
+        <td>Last discovered 365 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">HOU-LNX-WEB-05<span class="code">Linux servers</span></td>
+        <td>Last discovered 222 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">HOU-WIN-RDS-26<span class="code">Windows servers</span></td>
+        <td>Last discovered 251 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">hou-win-sftp-13<span class="code">Windows servers</span></td>
+        <td>Last discovered 337 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">HOU-WIN-SQL-22<span class="code">Windows servers</span></td>
+        <td>Last discovered 214 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">hou-win-sql-36<span class="code">Windows servers</span></td>
+        <td>Last discovered 400 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">HOUSQL01<span class="code">Windows servers</span></td>
+        <td>Last discovered 213 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">lt-10035<span class="code">Computers</span></td>
+        <td>Last discovered 378 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">lt-10329<span class="code">Computers</span></td>
+        <td>Last discovered 378 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">lt-10371<span class="code">Computers</span></td>
+        <td>Last discovered 397 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">lt-10672<span class="code">Computers</span></td>
+        <td>Last discovered 256 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">phx-lnx-api-21<span class="code">Linux servers</span></td>
+        <td>Last discovered 232 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">PHX-WIN-SCCM-23<span class="code">Windows servers</span></td>
+        <td>Last discovered 295 days ago</td></tr><tr data-sev="high" data-check="Stale records"><td><span class="sev high">high</span></td>
+        <td>Stale records</td><td class="ci">phx-win-sftp-06<span class="code">Windows servers</span></td>
+        <td>Last discovered 299 days ago</td></tr><tr data-sev="medium" data-check="Duplicates"><td><span class="sev medium">medium</span></td>
+        <td>Duplicates</td><td class="ci">atl-lnx-nfs-22<span class="code">Linux servers</span></td>
+        <td>Same host name as another cmdb_ci_linux_server record (3 records)</td></tr><tr data-sev="medium" data-check="Duplicates"><td><span class="sev medium">medium</span></td>
+        <td>Duplicates</td><td class="ci">atl-lnx-nfs-22.corp.northwind.local<span class="code">Linux servers</span></td>
+        <td>Same host name as another cmdb_ci_linux_server record (3 records)</td></tr><tr data-sev="medium" data-check="Duplicates"><td><span class="sev medium">medium</span></td>
+        <td>Duplicates</td><td class="ci">chi-win-file-21<span class="code">Windows servers</span></td>
+        <td>Same host name as another cmdb_ci_win_server record (2 records)</td></tr><tr data-sev="medium" data-check="Duplicates"><td><span class="sev medium">medium</span></td>
+        <td>Duplicates</td><td class="ci">chi-win-rds-10<span class="code">Windows servers</span></td>
+        <td>Same host name as another cmdb_ci_win_server record (2 records)</td></tr><tr data-sev="medium" data-check="Duplicates"><td><span class="sev medium">medium</span></td>
+        <td>Duplicates</td><td class="ci">dal-win-sql-08.corp.northwind.local<span class="code">Windows servers</span></td>
+        <td>Same host name as another cmdb_ci_win_server record (2 records)</td></tr><tr data-sev="medium" data-check="Duplicates"><td><span class="sev medium">medium</span></td>
+        <td>Duplicates</td><td class="ci">hou-win-sftp-13<span class="code">Windows servers</span></td>
+        <td>Same host name as another cmdb_ci_win_server record (2 records)</td></tr><tr data-sev="medium" data-check="Relationships"><td><span class="sev medium">medium</span></td>
+        <td>Relationships</td><td class="ci">Fleet Telematics<span class="code">Applications</span></td>
+        <td>Linked to a CI that no longer exists</td></tr><tr data-sev="medium" data-check="Relationships"><td><span class="sev medium">medium</span></td>
+        <td>Relationships</td><td class="ci">Safety Incident Log<span class="code">Applications</span></td>
+        <td>Linked to a CI that no longer exists</td></tr><tr data-sev="medium" data-check="Relationships"><td><span class="sev medium">medium</span></td>
+        <td>Relationships</td><td class="ci">Yard Check-in<span class="code">Applications</span></td>
+        <td>Linked to a CI that no longer exists</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">chi-lnx-proxy-25<span class="code">Linux servers</span></td>
+        <td>Missing Location</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">chi-win-file-21<span class="code">Windows servers</span></td>
+        <td>Missing Location</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">chi-win-iis-16<span class="code">Windows servers</span></td>
+        <td>Missing Location</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">Customs Broker Gateway<span class="code">Applications</span></td>
+        <td>Missing Managed by</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dal-win-file-32<span class="code">Windows servers</span></td>
+        <td>Missing Location</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dal-win-sftp-33<span class="code">Windows servers</span></td>
+        <td>Missing Location</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">Driver Portal<span class="code">Applications</span></td>
+        <td>Missing Managed by</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">Driver Training LMS<span class="code">Applications</span></td>
+        <td>Missing Managed by</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dt-10140<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dt-10189<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dt-10189<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dt-10574<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dt-10763<span class="code">Computers</span></td>
+        <td>Missing Serial number</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">dt-10861<span class="code">Computers</span></td>
+        <td>Missing Serial number</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">hou-win-rds-23<span class="code">Windows servers</span></td>
+        <td>Missing Serial number</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10049<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10476<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10812<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10819<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10854<span class="code">Computers</span></td>
+        <td>Missing Asset tag</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10980<span class="code">Computers</span></td>
+        <td>Missing Serial number</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">lt-10987<span class="code">Computers</span></td>
+        <td>Missing Serial number</td></tr><tr data-sev="medium" data-check="Required fields"><td><span class="sev medium">medium</span></td>
+        <td>Required fields</td><td class="ci">phx-lnx-redis-02<span class="code">Linux servers</span></td>
+        <td>Missing Location</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">chi-win-sccm-27<span class="code">Windows servers</span></td>
+        <td>Last discovered 127 days ago</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">chi-win-sql01<span class="code">Computers</span></td>
+        <td>Never discovered</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">dt-10616<span class="code">Computers</span></td>
+        <td>Never discovered</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">dt-10798<span class="code">Computers</span></td>
+        <td>Never discovered</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">hou-lnx-redis-15<span class="code">Linux servers</span></td>
+        <td>Last discovered 104 days ago</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">hou-win-sql-12<span class="code">Windows servers</span></td>
+        <td>Last discovered 113 days ago</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">lt-10245<span class="code">Computers</span></td>
+        <td>Last discovered 126 days ago</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">lt-10882<span class="code">Computers</span></td>
+        <td>Never discovered</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">lt-11113<span class="code">Computers</span></td>
+        <td>Never discovered</td></tr><tr data-sev="medium" data-check="Stale records"><td><span class="sev medium">medium</span></td>
+        <td>Stale records</td><td class="ci">PHX-WIN-WEB-24<span class="code">Windows servers</span></td>
+        <td>Last discovered 150 days ago</td></tr><tr data-sev="medium" data-check="Status conflicts"><td><span class="sev medium">medium</span></td>
+        <td>Status conflicts</td><td class="ci">atl-lnx-api-36<span class="code">Linux servers</span></td>
+        <td>Retired, but still marked Operational</td></tr><tr data-sev="medium" data-check="Status conflicts"><td><span class="sev medium">medium</span></td>
+        <td>Status conflicts</td><td class="ci">atl-win-rds-05<span class="code">Windows servers</span></td>
+        <td>Retired, but still marked Operational</td></tr><tr data-sev="medium" data-check="Status conflicts"><td><span class="sev medium">medium</span></td>
+        <td>Status conflicts</td><td class="ci">hou-win-sccm-13<span class="code">Windows servers</span></td>
+        <td>Retired, but still marked Operational</td></tr><tr data-sev="medium" data-check="Status conflicts"><td><span class="sev medium">medium</span></td>
+        <td>Status conflicts</td><td class="ci">hou-win-sql-22<span class="code">Windows servers</span></td>
+        <td>Retired, but still marked Operational</td></tr><tr data-sev="medium" data-check="Status conflicts"><td><span class="sev medium">medium</span></td>
+        <td>Status conflicts</td><td class="ci">phx-win-dc-14<span class="code">Windows servers</span></td>
+        <td>Retired, but still marked Operational</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">chi-win-sql01<span class="code">Computers</span></td>
+        <td>&#x27;chi-win-sql01&#x27; doesn&#x27;t match ^(lt|dt)-\d{5}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">dal_web_03<span class="code">Windows servers</span></td>
+        <td>&#x27;dal_web_03&#x27; doesn&#x27;t match ^[a-z]{3}-win-[a-z0-9]{2,12}-\d{2}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">DESKTOP-4KT8M1P<span class="code">Computers</span></td>
+        <td>&#x27;DESKTOP-4KT8M1P&#x27; doesn&#x27;t match ^(lt|dt)-\d{5}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">HOUSQL01<span class="code">Windows servers</span></td>
+        <td>&#x27;HOUSQL01&#x27; doesn&#x27;t match ^[a-z]{3}-win-[a-z0-9]{2,12}-\d{2}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">LAPTOP-JCHEN<span class="code">Linux servers</span></td>
+        <td>&#x27;LAPTOP-JCHEN&#x27; doesn&#x27;t match ^[a-z]{3}-lnx-[a-z0-9]{2,12}-\d{2}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">PHX-LNX-API-7<span class="code">Linux servers</span></td>
+        <td>&#x27;PHX-LNX-API-7&#x27; doesn&#x27;t match ^[a-z]{3}-lnx-[a-z0-9]{2,12}-\d{2}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">SERVER2019<span class="code">Linux servers</span></td>
+        <td>&#x27;SERVER2019&#x27; doesn&#x27;t match ^[a-z]{3}-lnx-[a-z0-9]{2,12}-\d{2}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">test-box<span class="code">Windows servers</span></td>
+        <td>&#x27;test-box&#x27; doesn&#x27;t match ^[a-z]{3}-win-[a-z0-9]{2,12}-\d{2}$</td></tr><tr data-sev="low" data-check="Naming standard"><td><span class="sev low">low</span></td>
+        <td>Naming standard</td><td class="ci">WIN-7F3K2QJ9<span class="code">Computers</span></td>
+        <td>&#x27;WIN-7F3K2QJ9&#x27; doesn&#x27;t match ^(lt|dt)-\d{5}$</td></tr><tr data-sev="low" data-check="Status conflicts"><td><span class="sev low">low</span></td>
+        <td>Status conflicts</td><td class="ci">dt-10462<span class="code">Computers</span></td>
+        <td>Operational status is Retired, but install status is not</td></tr><tr data-sev="low" data-check="Status conflicts"><td><span class="sev low">low</span></td>
+        <td>Status conflicts</td><td class="ci">dt-10637<span class="code">Computers</span></td>
+        <td>Operational status is Retired, but install status is not</td></tr><tr data-sev="low" data-check="Status conflicts"><td><span class="sev low">low</span></td>
+        <td>Status conflicts</td><td class="ci">lt-10280<span class="code">Computers</span></td>
+        <td>Operational status is Retired, but install status is not</td></tr></tbody></table></div>
+    
+  </section>
+
+  <footer>cmdb-health-scorecard v1.0.0 · read-only analysis, nothing was changed in the CMDB</footer>
+</div>
+<script>
+(function(){
+  var q=document.getElementById('q'),s=document.getElementById('sev'),c=document.getElementById('chk');
+  var rows=[].slice.call(document.querySelectorAll('#findings tbody tr'));
+  function apply(){var t=q.value.toLowerCase();rows.forEach(function(r){
+    var ok=(!s.value||r.dataset.sev===s.value)&&(!c.value||r.dataset.check===c.value)&&(!t||r.textContent.toLowerCase().indexOf(t)>-1);
+    r.style.display=ok?'':'none';});}
+  [q,s,c].forEach(function(el){el.addEventListener('input',apply)});
+})();
+</script>
+</body>
+</html>
